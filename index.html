@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tính giá đỡ đường ống — phần tử hữu hạn</title>
+<meta name="description" content="Công cụ web tính giá đỡ (support) đường ống bằng phần tử hữu hạn khung phẳng: tải trọng ống, khoảng cách gối đỡ, nội lực, ổn định, và đề xuất tiết diện. Chạy hoàn toàn trong trình duyệt.">
+<meta name="theme-color" content="#0a0f1c">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0f1c'/%3E%3Cpath d='M5 21V11l11 5zM27 21V11l-11 5z' fill='%23f5a524'/%3E%3Cpath d='M16 16V9M11 9h10' stroke='%234fb3d9' stroke-width='2.2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <path d="M5 21V11l11 5zM27 21V11l-11 5z" fill="currentColor"/>
+      <path d="M16 16V9M11 9h10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <div>Giá đỡ đường ống<small>phần tử hữu hạn khung phẳng · kiểm tra ASD</small></div>
+  </div>
+  <div class="spacer"></div>
+  <button id="btn-example" class="ghost">Nạp ví dụ</button>
+  <button id="btn-verify" class="ghost">Tự kiểm chứng</button>
+  <button id="btn-autosize">Tự chọn tiết diện</button>
+  <button id="btn-report" class="ghost">Tải báo cáo</button>
+  <button id="btn-run" class="primary">TÍNH</button>
+</header>
+
+<div class="wrap">
+  <!-- ============ cột nhập liệu ============ -->
+  <div>
+    <div class="tabs" id="tabs">
+      <button data-p="p1" class="on">1· Ống &amp; môi chất</button>
+      <button data-p="p2">2· Tiết diện thép</button>
+      <button data-p="p3">3· Khung support</button>
+      <button data-p="p4">4· Kết quả</button>
+      <button data-p="p5">5· Báo cáo</button>
+    </div>
+
+    <!-- ---- 1 ---- -->
+    <section class="pane on" id="p1">
+      <div class="card">
+        <h3>Tiêu chuẩn áp dụng</h3>
+        <div class="grid">
+          <div><label class="f">Nhóm</label><select id="std-group"></select></div>
+          <div><label class="f">Tiêu chuẩn</label><select id="std"></select></div>
+        </div>
+        <p class="note" id="std-note"></p>
+      </div>
+
+      <div class="card">
+        <h3>Kích thước ống</h3>
+        <div class="grid">
+          <div><label class="f">NPS</label><select id="nps"></select></div>
+          <div><label class="f">Schedule</label><select id="sch"></select></div>
+          <div><label class="f">OD [mm]</label><input id="od" value="168.3"></div>
+          <div><label class="f">Chiều dày t [mm]</label><input id="tw" value="7.11"></div>
+          <div><label class="f">Dư ăn mòn [mm]</label><input id="corr" value="0"></div>
+          <div><label class="f">Tải phụ [kg/m]</label><input id="extra" value="0"></div>
+        </div>
+        <p class="note">OD và t sửa tay được — bảng tra chỉ để điền nhanh.</p>
+      </div>
+
+      <div class="card">
+        <h3>Vật liệu ống &amp; môi chất</h3>
+        <div class="grid">
+          <div style="grid-column:1/-1"><label class="f">Vật liệu ống</label><select id="pmat"></select></div>
+        </div>
+        <p class="note" id="pmat-note"></p>
+        <div class="grid" style="margin-top:9px">
+          <div><label class="f">Môi chất</label><select id="fluid"></select></div>
+          <div><label class="f">ρ môi chất [kg/m³]</label><input id="rhof" value="450"></div>
+          <div><label class="f">Bảo ôn</label><select id="ins"></select></div>
+          <div><label class="f">Dày bảo ôn [mm]</label><input id="tins" value="80"></div>
+        </div>
+        <p class="note" id="fluid-note"></p>
+      </div>
+
+      <div class="card">
+        <h3>Khoảng cách gối đỡ</h3>
+        <div class="grid">
+          <div style="grid-column:1/-1"><label class="f">Sơ đồ dầm</label><select id="scheme"></select></div>
+          <div><label class="f">σ uốn cho phép [MPa]</label><input id="sigall" value="15.9"></div>
+          <div><label class="f">Độ võng cho phép [mm]</label><input id="sag" value="2.5"></div>
+        </div>
+        <p class="note">Mặc định 15,9 MPa và 2,5 mm là cơ sở của ASME B31.1 Table 121.5.</p>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <button id="btn-pipe">Tính tải ống</button>
+          <button id="btn-push" class="ghost">→ Dùng làm lực tác dụng</button>
+        </div>
+        <pre class="out" id="pipe-out"></pre>
+      </div>
+    </section>
+
+    <!-- ---- 2 ---- -->
+    <section class="pane" id="p2">
+      <div class="card">
+        <h3>Thép kết cấu</h3>
+        <div class="grid">
+          <div style="grid-column:1/-1"><label class="f">Mác thép</label><select id="steel"></select></div>
+        </div>
+        <p class="note" id="steel-note"></p>
+      </div>
+
+      <div class="card">
+        <h3>Định nghĩa tiết diện</h3>
+        <div class="grid">
+          <div><label class="f">Dạng</label><select id="shape"></select></div>
+          <div><label class="f">Kích thước có sẵn</label><select id="preset"></select></div>
+        </div>
+        <div class="grid" id="dims" style="margin-top:9px"></div>
+        <div class="grid" style="margin-top:9px">
+          <div><label class="f">Tên</label><input id="secname" value="SHS 100x100x5"></div>
+          <div style="display:flex;align-items:flex-end"><button id="btn-addsec">Tính &amp; thêm vào thư viện</button></div>
+        </div>
+        <p class="note warn" id="preset-warn"></p>
+        <pre class="out" id="sec-out"></pre>
+      </div>
+
+      <div class="card">
+        <h3>Thư viện tiết diện</h3>
+        <div class="scrollx">
+          <table class="rtbl" id="sec-tbl">
+            <thead><tr><th>Tên</th><th>A [mm²]</th><th>Ix [mm⁴]</th><th>Sx [mm³]</th>
+              <th>r min [mm]</th><th>kg/m</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- 3 ---- -->
+    <section class="pane" id="p3">
+      <div class="card">
+        <h3>Tuỳ chọn mô hình</h3>
+        <div class="grid">
+          <div><label class="f">Đơn vị toạ độ</label>
+            <select id="unit"><option value="1">mm</option><option value="1000">m</option></select></div>
+          <div><label class="f">Chia lưới / thanh</label><input id="nseg" value="4"></div>
+          <div><label class="f">Hệ số K</label><input id="kfac" value="1.0"></div>
+          <div><label class="f">Giới hạn chuyển vị [mm]</label><input id="dlim" value="10"></div>
+        </div>
+        <div style="margin-top:9px;display:flex;gap:16px;flex-wrap:wrap">
+          <label class="chk"><input type="checkbox" id="sw" checked> Trọng lượng bản thân</label>
+          <label class="chk"><input type="checkbox" id="buck" checked> Phân tích ổn định</label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Thanh support</h3>
+        <div class="scrollx">
+          <table class="tbl" id="t-mem">
+            <thead><tr><th>Nhãn</th><th>x1</th><th>y1</th><th>x2</th><th>y2</th>
+              <th>Tiết diện</th><th>Dự kiến</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button class="tiny ghost" id="add-mem" style="margin-top:8px">+ Thêm thanh</button>
+        <p class="note">Hai thanh có toạ độ trùng nhau thì tự động nối với nhau.
+          Ô <em>Dự kiến</em> không dùng để tính — dùng để đối chiếu với kết quả PTHH.</p>
+      </div>
+
+      <div class="card">
+        <h3>Lực tác dụng</h3>
+        <div class="scrollx">
+          <table class="tbl" id="t-load">
+            <thead><tr><th>Nhãn</th><th>x</th><th>y</th><th>Độ lớn [N]</th>
+              <th>Góc [°]</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button class="tiny ghost" id="add-load" style="margin-top:8px">+ Thêm lực</button>
+        <p class="note">Góc đo từ trục +X ngược chiều kim đồng hồ: −90° = thẳng đứng xuống,
+          0° = sang phải. Điểm đặt lực phải nằm TRÊN một thanh.</p>
+      </div>
+
+      <div class="card">
+        <h3>Gối tựa</h3>
+        <div class="scrollx">
+          <table class="tbl" id="t-sup">
+            <thead><tr><th>x</th><th>y</th><th>Loại</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button class="tiny ghost" id="add-sup" style="margin-top:8px">+ Thêm gối tựa</button>
+      </div>
+    </section>
+
+    <!-- ---- 4 ---- -->
+    <section class="pane" id="p4">
+      <div class="card">
+        <div class="verdict" id="verdict">Chưa tính.</div>
+        <div class="sub" id="verdict-sub"></div>
+        <div class="scrollx">
+          <table class="rtbl" id="res-tbl">
+            <thead><tr><th>Thanh</th><th>Kéo/Nén</th><th>N [N]</th><th>M [N·mm]</th>
+              <th>V [N]</th><th>KL/r</th><th>Sử dụng</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Nhận xét &amp; đề xuất</h3>
+        <div class="adv" id="adv"></div>
+      </div>
+    </section>
+
+    <!-- ---- 5 ---- -->
+    <section class="pane" id="p5">
+      <div class="card">
+        <h3>Báo cáo tính toán</h3>
+        <pre class="report" id="report">Bấm TÍNH để tạo báo cáo.</pre>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ cột hình vẽ ============ -->
+  <div class="viewer">
+    <canvas id="view"></canvas>
+    <div class="viewbar">
+      <label class="chk"><input type="checkbox" id="v-defl" checked> Biến dạng</label>
+      <label class="chk"><input type="checkbox" id="v-mom"> Biểu đồ moment</label>
+      <label class="chk"><input type="checkbox" id="v-mode"> Dạng mất ổn định</label>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Công cụ <strong>sàng lọc và định cỡ sơ bộ</strong>. Mô hình khung phẳng 2D, nút cứng —
+  không xét xoắn, ổn định ngang của dầm, ổn định cục bộ, mỏi, tải động, liên kết bu-lông
+  và mối hàn. Hồ sơ thiết kế phát hành phải được kỹ sư có thẩm quyền kiểm tra độc lập.
+  Toàn bộ tính toán chạy trong trình duyệt của bạn — không có dữ liệu nào được gửi đi.
+</footer>
+
+<dialog id="dlg">
+  <div class="dlg-head"><span id="dlg-title">…</span>
+    <span class="spacer"></span>
+    <button class="tiny ghost" onclick="document.getElementById('dlg').close()">Đóng</button>
+  </div>
+  <div class="dlg-body" id="dlg-body"></div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/linalg.js"></script>
+<script src="js/fem.js"></script>
+<script src="js/sections.js"></script>
+<script src="js/pipe.js"></script>
+<script src="js/checks.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/advice.js"></script>
+<script src="js/report.js"></script>
+<script src="js/draw.js"></script>
+<script src="js/verify.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

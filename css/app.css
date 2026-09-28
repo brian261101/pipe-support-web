@@ -1,0 +1,201 @@
+/* Pipe Support Analysis — giao diện web */
+
+:root {
+  --bg: #0a0f1c;
+  --bg2: #0d1424;
+  --panel: #111a2e;
+  --panel2: #16203a;
+  --line: #1f2b46;
+  --line2: #2b3a5c;
+  --fg: #e9eef8;
+  --fg2: #9fb0cb;
+  --fg3: #64748b;
+  --flame: #f5a524;
+  --flame2: #ffc860;
+  --steel: #4fb3d9;
+  --weld: #34d399;
+  --bad: #e5544b;
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, 'Cascadia Code', monospace;
+  --r: 10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 14px;
+  line-height: 1.55;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+a { color: var(--steel); }
+::selection { background: var(--flame); color: #10131a; }
+
+/* ---------- header ---------- */
+header {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+}
+.brand { display: flex; align-items: center; gap: 9px; font-weight: 700; letter-spacing: -.01em; }
+.brand svg { width: 26px; height: 26px; color: var(--flame); flex: none; }
+.brand small { display: block; font-weight: 400; font-size: 11px; color: var(--fg3); letter-spacing: 0; }
+.spacer { margin-left: auto; }
+
+button, .btn {
+  font: inherit; font-size: 13px; font-weight: 600;
+  padding: 7px 13px; border-radius: 8px;
+  border: 1px solid var(--line2); background: var(--panel); color: var(--fg);
+  cursor: pointer; white-space: nowrap;
+  transition: border-color .15s, transform .15s, background .15s;
+}
+button:hover, .btn:hover { border-color: var(--flame); transform: translateY(-1px); }
+button.primary {
+  background: linear-gradient(135deg, var(--flame), var(--flame2));
+  border-color: transparent; color: #16130a;
+}
+button.ghost { background: transparent; }
+button.tiny { padding: 3px 8px; font-size: 12px; font-weight: 500; }
+button.del { border-color: var(--line); color: var(--fg3); }
+button.del:hover { border-color: var(--bad); color: var(--bad); }
+
+/* ---------- bố cục ---------- */
+.wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+  gap: 14px;
+  padding: 14px 16px 40px;
+  align-items: start;
+}
+@media (max-width: 1020px) { .wrap { grid-template-columns: minmax(0, 1fr); } }
+/* Không có min-width:0 thì ô lưới không co được dưới bề rộng tối thiểu của
+   bảng bên trong, làm cả trang tràn ngang trên điện thoại. */
+.wrap > * { min-width: 0; }
+
+/* ---------- tabs ---------- */
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+.tabs button {
+  border-color: transparent; background: transparent; color: var(--fg2);
+  font-weight: 500;
+}
+.tabs button.on { background: var(--panel2); color: var(--flame); border-color: var(--line2); }
+
+.pane { display: none; }
+.pane.on { display: block; }
+
+/* ---------- khối ---------- */
+.card {
+  border: 1px solid var(--line); border-radius: var(--r);
+  background: var(--panel); padding: 13px; margin-bottom: 12px;
+}
+.card > h3 {
+  font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--flame); margin-bottom: 10px;
+}
+.note { font-size: 12px; color: var(--fg3); margin-top: 6px; }
+.note.warn { color: var(--flame); }
+
+/* ---------- ô nhập ---------- */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 9px; }
+label.f { display: block; font-size: 11.5px; color: var(--fg2); margin-bottom: 3px; }
+input, select {
+  font: inherit; font-size: 13px; width: 100%;
+  padding: 6px 8px; border-radius: 7px;
+  border: 1px solid var(--line2); background: var(--bg2); color: var(--fg);
+}
+input:focus, select:focus { outline: 2px solid color-mix(in srgb, var(--flame) 55%, transparent); outline-offset: -1px; }
+input[type=checkbox] { width: auto; accent-color: var(--flame); }
+.chk { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg2); }
+
+/* ---------- bảng ---------- */
+.tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.tbl th {
+  text-align: left; font-size: 11px; font-weight: 600; letter-spacing: .04em;
+  color: var(--fg3); padding: 4px 5px; border-bottom: 1px solid var(--line);
+  text-transform: uppercase;
+}
+.tbl td { padding: 3px 4px; }
+.tbl input, .tbl select { padding: 5px 6px; font-size: 12.5px; }
+.tbl .num input { text-align: right; font-family: var(--mono); }
+.scrollx { overflow-x: auto; max-width: 100%; }
+.scrollx .tbl { min-width: 620px; }
+
+/* ---------- canvas ---------- */
+.viewer { position: sticky; top: 64px; }
+@media (max-width: 1020px) { .viewer { position: static; } }
+#view {
+  width: 100%; height: 520px; display: block;
+  border: 1px solid var(--line); border-radius: var(--r); background: var(--bg);
+}
+@media (max-width: 640px) { #view { height: 380px; } }
+.viewbar { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+
+/* ---------- kết quả ---------- */
+.verdict { font-size: 17px; font-weight: 700; }
+.verdict.ok { color: var(--weld); }
+.verdict.no { color: var(--bad); }
+.sub { color: var(--fg2); font-size: 13px; margin-top: 3px; }
+
+.rtbl { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 10px; }
+.rtbl th { background: var(--panel2); color: var(--flame); font-size: 11px;
+  text-transform: uppercase; letter-spacing: .04em; padding: 6px 7px; text-align: right; }
+.rtbl th:first-child { text-align: left; }
+.rtbl td { padding: 5px 7px; border-bottom: 1px solid var(--line); text-align: right;
+  font-family: var(--mono); }
+.rtbl td:first-child { text-align: left; font-family: var(--sans); font-weight: 600; }
+.rtbl tr.bad td { color: var(--bad); }
+
+.adv { margin-top: 6px; }
+.adv .item { padding: 9px 0; border-bottom: 1px dashed var(--line); }
+.adv .t { font-weight: 600; font-size: 13px; }
+.adv .b { color: var(--fg2); font-size: 12.5px; margin-top: 3px; }
+.adv .lv-hi .t { color: var(--bad); }
+.adv .lv-mid .t { color: var(--flame); }
+.adv .lv-info .t { color: var(--weld); }
+
+pre.report {
+  font-family: var(--mono); font-size: 11.5px; line-height: 1.5;
+  white-space: pre; overflow: auto; max-height: 70vh;
+  background: var(--bg2); border: 1px solid var(--line);
+  border-radius: var(--r); padding: 12px; color: var(--fg2);
+}
+pre.out {
+  font-family: var(--mono); font-size: 12px; white-space: pre-wrap;
+  color: var(--fg2); margin-top: 8px;
+}
+
+/* ---------- hộp thoại ---------- */
+dialog {
+  border: 1px solid var(--line2); border-radius: var(--r);
+  background: var(--panel); color: var(--fg); padding: 0;
+  max-width: min(820px, 94vw); width: 100%;
+}
+dialog::backdrop { background: rgba(4, 8, 16, .72); }
+.dlg-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  border-bottom: 1px solid var(--line); font-weight: 700; }
+.dlg-body { padding: 14px; max-height: 66vh; overflow: auto; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%);
+  background: var(--panel2); border: 1px solid var(--line2); color: var(--fg);
+  padding: 9px 16px; border-radius: 999px; font-size: 13px;
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,.7);
+  opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 90;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+
+.badge { display: inline-block; padding: 1px 7px; border-radius: 999px;
+  font-family: var(--mono); font-size: 11px; border: 1px solid var(--line2); color: var(--fg2); }
+.badge.ok { color: var(--weld); border-color: color-mix(in srgb, var(--weld) 50%, var(--line)); }
+.badge.no { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 50%, var(--line)); }
+
+footer { border-top: 1px solid var(--line); padding: 16px; color: var(--fg3); font-size: 12px; }
